@@ -5,16 +5,10 @@ public class ArrayList<T> implements List<T> {
     @SuppressWarnings("unchecked")
     private T[] arrayData = (T[]) new Object[DEFAULT_CAPACITY];
     private int size = 0;
-
-    @SuppressWarnings("unchecked")
     @Override
     public void add(T value) {
         if (this.size == arrayData.length) {
-            T[] newData = (T[]) new Object[arrayData.length * 3 / 2];   
-            for (int i = 0; i < arrayData.length; i++) {
-                newData[i] = arrayData[i];
-            }
-            arrayData = newData;
+            this.resize();
         }
 
         arrayData[this.size] = value;
@@ -28,11 +22,7 @@ public class ArrayList<T> implements List<T> {
             throw new ArrayListIndexOutOfBoundsException("The index does not exist");
         }
         if (this.size == arrayData.length) {
-            T[] newData = (T[]) new Object[arrayData.length * 3 / 2];   
-            for (int i = 0; i < arrayData.length; i++) {
-                newData[i] = arrayData[i];
-            }
-            arrayData = newData;
+            this.resize();
         }
         T[] tempData = (T[]) new Object[arrayData.length];
         int count = 0;
@@ -49,15 +39,10 @@ public class ArrayList<T> implements List<T> {
         this.size++;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void addAll(List<T> list) {
         if (this.size + list.size() > arrayData.length) {
-            T[] newData = (T[]) new Object[arrayData.length * 3 / 2];   
-            for (int i = 0; i < arrayData.length; i++) {
-                newData[i] = arrayData[i];
-            }
-            arrayData = newData;
+            this.resize();
         }
         for (int i = 0; i < list.size(); i++) {
             this.add(list.get(i));
@@ -66,25 +51,19 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public T get(int index) {
-        if (index >= this.size || index < 0) {
-            throw new ArrayListIndexOutOfBoundsException("The index does not exist");
-        }
+        this.checkIndex(index);
         return this.arrayData[index];
     }
 
     @Override
     public void set(T value, int index) {
-        if (index >= this.size || index < 0) {
-            throw new ArrayListIndexOutOfBoundsException("The index does not exist");
-        }
+        this.checkIndex(index);
         this.arrayData[index] = value;
     }
 
     @Override
     public T remove(int index) {
-        if (index >= this.size || index < 0) {
-            throw new ArrayListIndexOutOfBoundsException("The index does not exist");
-        }
+        this.checkIndex(index);
         T remElem = this.arrayData[index];
         for (int i = index; i < this.size - 1; i++) {
             arrayData[i] = arrayData[i + 1];
@@ -112,5 +91,20 @@ public class ArrayList<T> implements List<T> {
     @Override
     public boolean isEmpty() {
         return this.size == 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void resize() {
+        T[] newData = (T[]) new Object[arrayData.length * 3 / 2];   
+        for (int i = 0; i < arrayData.length; i++) {
+            newData[i] = arrayData[i];
+        }
+        arrayData = newData;
+    }
+
+    public void checkIndex(int index) {
+        if (index >= this.size || index < 0) {
+            throw new ArrayListIndexOutOfBoundsException("The index does not exist");
+        }
     }
 }
