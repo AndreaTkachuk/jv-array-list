@@ -55,8 +55,8 @@ public class ArrayList<T> implements List<T> {
     @Override
     public T remove(T element) {
         for (int i = 0; i < size; i++) {
-            if ((element == null && arrayData[i] == null) ||
-                (element != null && element.equals(arrayData[i]))) {
+            if ((element == null && arrayData[i] == null) 
+                    || (element != null && element.equals(arrayData[i]))) {
                 return remove(i);
             }
         }
@@ -74,7 +74,9 @@ public class ArrayList<T> implements List<T> {
     }
 
     private void ensureCapacity(int minCapacity) {
-        if (minCapacity <= arrayData.length) return;
+        if (minCapacity <= arrayData.length) {
+            return;
+        }
         int newCapacity = arrayData.length;
         while (newCapacity < minCapacity) {
             newCapacity = (int) (newCapacity * GROWTH_FACTOR);
