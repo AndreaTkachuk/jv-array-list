@@ -5,6 +5,7 @@ public class ArrayList<T> implements List<T> {
     @SuppressWarnings("unchecked")
     private T[] arrayData = (T[]) new Object[DEFAULT_CAPACITY];
     private int size = 0;
+    
     @Override
     public void add(T value) {
         if (this.size == arrayData.length) {
