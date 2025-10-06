@@ -2,110 +2,99 @@ package core.basesyntax;
 
 public class ArrayList<T> implements List<T> {
     private static final int DEFAULT_CAPACITY = 10;
+    private static final double GROWTH_FACTOR = 1.5;
+
     @SuppressWarnings("unchecked")
     private T[] arrayData = (T[]) new Object[DEFAULT_CAPACITY];
     private int size = 0;
-    
+
     @Override
     public void add(T value) {
-        if (this.size == arrayData.length) {
-            this.resize();
-        }
-
-        arrayData[this.size] = value;
-        this.size++;
+        ensureCapacity(size + 1);
+        arrayData[size++] = value;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void add(T value, int index) {
-        if (index > this.size || index < 0) {
-            throw new ArrayListIndexOutOfBoundsException("The index does not exist");
-        }
-        if (this.size == arrayData.length) {
-            this.resize();
-        }
-        T[] tempData = (T[]) new Object[arrayData.length];
-        int count = 0;
-        for (int i = index; i < this.size; i++) {
-            tempData[count] = arrayData[i];
-            count++;
-        }
+        checkIndexForAdd(index);
+        ensureCapacity(size + 1);
+        System.arraycopy(arrayData, index, arrayData, index + 1, size - index);
         arrayData[index] = value;
-        count = 0;
-        for (int i = index + 1; i <= this.size; i++) {
-            arrayData[i] = tempData[count];
-            count++;
-        }
-        this.size++;
+        size++;
     }
 
     @Override
     public void addAll(List<T> list) {
-        if (this.size + list.size() > arrayData.length) {
-            this.resize();
-        }
+        ensureCapacity(size + list.size());
         for (int i = 0; i < list.size(); i++) {
-            this.add(list.get(i));
+            arrayData[size++] = list.get(i);
         }
     }
 
     @Override
     public T get(int index) {
-        this.checkIndex(index);
-        return this.arrayData[index];
+        checkIndex(index, "get");
+        return arrayData[index];
     }
 
     @Override
     public void set(T value, int index) {
-        this.checkIndex(index);
-        this.arrayData[index] = value;
+        checkIndex(index, "set");
+        arrayData[index] = value;
     }
 
     @Override
     public T remove(int index) {
-        this.checkIndex(index);
-        T remElem = this.arrayData[index];
-        for (int i = index; i < this.size - 1; i++) {
-            arrayData[i] = arrayData[i + 1];
-        }
-        this.size--;
-        return remElem;
+        checkIndex(index, "remove");
+        T removed = arrayData[index];
+        System.arraycopy(arrayData, index + 1, arrayData, index, size - index - 1);
+        arrayData[--size] = null;
+        return removed;
     }
 
     @Override
     public T remove(T element) {
-        for (int i = 0; i < this.size; i++) {
-            if ((element == null && arrayData[i] == null) 
-                    || (arrayData[i] != null && arrayData[i].equals(element))) {
+        for (int i = 0; i < size; i++) {
+            if ((element == null && arrayData[i] == null) ||
+                (element != null && element.equals(arrayData[i]))) {
                 return remove(i);
             }
         }
-        throw new java.util.NoSuchElementException("No such element");
+        throw new java.util.NoSuchElementException("Element not found: " + element);
     }
 
     @Override
     public int size() {
-        return this.size;
+        return size;
     }
 
     @Override
     public boolean isEmpty() {
-        return this.size == 0;
+        return size == 0;
     }
 
-    @SuppressWarnings("unchecked")
-    public void resize() {
-        T[] newData = (T[]) new Object[arrayData.length * 3 / 2];   
-        for (int i = 0; i < arrayData.length; i++) {
-            newData[i] = arrayData[i];
+    private void ensureCapacity(int minCapacity) {
+        if (minCapacity <= arrayData.length) return;
+        int newCapacity = arrayData.length;
+        while (newCapacity < minCapacity) {
+            newCapacity = (int) (newCapacity * GROWTH_FACTOR);
         }
-        arrayData = newData;
+        arrayData = java.util.Arrays.copyOf(arrayData, newCapacity);
     }
 
-    public void checkIndex(int index) {
-        if (index >= this.size || index < 0) {
-            throw new ArrayListIndexOutOfBoundsException("The index does not exist");
+    private void checkIndex(int index, String operation) {
+        if (index < 0 || index >= size) {
+            throw new ArrayListIndexOutOfBoundsException(
+                "Cannot " + operation + " at index " + index + "; size is " + size
+            );
+        }
+    }
+
+    private void checkIndexForAdd(int index) {
+        if (index < 0 || index > size) {
+            throw new ArrayListIndexOutOfBoundsException(
+                "Cannot add at index " + index + "; size is " + size
+            );
         }
     }
 }
